@@ -70,7 +70,12 @@ class RichTextEditingController extends TextEditingController {
         if (index < element.start) {
           list.add(TextSpan(text: text.substring(index, element.start)));
         }
-        list.add(_textToSapne(text.substring(element.start, element.end)));
+        list.add(_textToSapne(
+            text.substring(
+              element.start,
+              element.end,
+            ),
+            style));
         index = element.end;
         start++;
       });
@@ -84,10 +89,10 @@ class RichTextEditingController extends TextEditingController {
     );
   }
 
-  InlineSpan _textToSapne(String text) {
+  InlineSpan _textToSapne(String text, TextStyle style) {
     var child = textToRichSpan?.call(text);
     if (null != child) {
-      return RichSpan(text, child: child);
+      return RichSpan(text, child: child, style: style,baseline: TextBaseline.alphabetic);
     }
     return TextSpan(
       text: text,

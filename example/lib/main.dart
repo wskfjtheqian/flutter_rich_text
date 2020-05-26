@@ -60,8 +60,6 @@ class _MyHomePageState extends State<MyHomePage> {
           RaisedButton(
             onPressed: () {
               _controller.addSpan('\uE001');
-
-
             },
             child: Text("Add Emoji"),
           )
