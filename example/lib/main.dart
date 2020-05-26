@@ -24,12 +24,15 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  var _controller = RichTextEditingController();
-
-  var _focusNode = FocusNode();
+  var _controller;
 
   var _controller1 = TextEditingController();
-  var _focusNode1 = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = RichTextEditingController(textToRichSpan: _textToRichSpan);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,48 +44,36 @@ class _MyHomePageState extends State<MyHomePage> {
           Expanded(
             child: Padding(
               padding: EdgeInsets.all(60),
-              child: RepaintBoundary(
-                child: RichEditableText(
-                  controller: _controller,
-                  focusNode: _focusNode,
-                  style: TextStyle(color: Colors.red),
-                  cursorColor: Colors.white,
-                  backgroundCursorColor: Colors.white,
-                ),
+              child: RichTextField(
+                controller: _controller,
               ),
             ),
           ),
           Expanded(
             child: Padding(
               padding: EdgeInsets.all(60),
-              child: RepaintBoundary(
-                child: EditableText(
-                  controller: _controller1,
-                  focusNode: _focusNode1,
-                  style: TextStyle(color: Colors.red),
-                  cursorColor: Colors.white,
-                  backgroundCursorColor: Colors.white,
-                ),
+              child: TextField(
+                controller: _controller1,
               ),
             ),
           ),
           RaisedButton(
             onPressed: () {
-              _controller.addSpan(WidgetSpan(
-                  child: Image.asset(
-                    "assets/emojis/emoji_00${1 + Random().nextInt(3)}.png",
-                    width: 32,
-                    height: 32,
-                  )));
+              _controller.addSpan('\uE001');
 
-              _controller1.value = _controller1.value.copyWith(
-                  text: _controller1.value.text + '\u0001'
-              );
+
             },
             child: Text("Add Emoji"),
           )
         ],
       ),
     );
+  }
+
+  Widget _textToRichSpan(String text) {
+    switch(text){
+      case '\uE001':
+        return Image.asset('assets/emojis/emoji_002.png',width: 24,height: 24,);
+    }
   }
 }

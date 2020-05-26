@@ -30,7 +30,6 @@ dependencies:
   cupertino_icons: ^0.1.3
   rich_text_edit:
     path: ../
-  flutter_rich_input: ^1.1.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

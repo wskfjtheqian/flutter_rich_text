@@ -17,6 +17,7 @@ import 'package:flutter/widgets.dart';
 
 import 'rich_edit_render.dart';
 import 'rich_editable.dart';
+import 'rich_span.dart';
 import 'rich_text_selection.dart';
 
 export 'package:flutter/rendering.dart' show SelectionChangedCause;
@@ -28,43 +29,70 @@ const Duration _kCursorBlinkHalfPeriod = Duration(milliseconds: 500);
 const Duration _kCursorBlinkWaitForStart = Duration(milliseconds: 150);
 const int _kObscureShowLatestCharCursorTicks = 3;
 
-class RichTextEditingController extends TextEditingController {
-  final List<InlineSpan> _list = [];
+typedef TextToRichSpan = Widget Function(String text);
 
-  void addSpan(InlineSpan span) {
-    assert(null != span);
-    _list.add(span);
+class RichTextEditingController extends TextEditingController {
+  final TextToRichSpan textToRichSpan;
+
+  RichTextEditingController({this.textToRichSpan, String text}) : super(text: text);
+
+  void addSpan(String codeText) {
+    assert(null != codeText && 1 == codeText.length);
+    assert(RichSpan.codeTextStart.codeUnitAt(0) <= codeText.codeUnitAt(0));
+    assert(RichSpan.codeTextEnd.codeUnitAt(0) >= codeText.codeUnitAt(0));
+
+    var baseOffset = value.selection.baseOffset;
+    var temp = value.text;
+    if (-1 != baseOffset && baseOffset < temp.length) {
+      temp = temp.substring(0, baseOffset) + codeText + temp.substring(baseOffset);
+    } else {
+      temp += codeText;
+    }
+
+    baseOffset += codeText.length;
     value = value.copyWith(
-      text: value.text + '\u0001',
-      selection: const TextSelection.collapsed(offset: -1),
-      composing: TextRange.empty,
+      text: temp,
+      selection: value.selection.copyWith(
+        baseOffset: baseOffset,
+        extentOffset: baseOffset,
+      ),
     );
   }
-//
-//  @override
-//  TextSpan buildTextSpan({TextStyle style, bool withComposing}) {
-//    var list = <InlineSpan>[];
-//    if (text?.isNotEmpty ?? false) {
-//      var matches = RegExp("\u0001").allMatches(text);
-//      var index = 0;
-//      var start = 0;
-//      matches.forEach((element) {
-//        if (index < element.start) {
-//          list.add(TextSpan(text: text.substring(index, element.start)));
-//        }
-//        list.add(_list[start]);
-//        index = element.end;
-//        start++;
-//      });
-//      if (index < text.length) {
-//        list.add(TextSpan(text: text.substring(index, text.length)));
-//      }
-//    }
-//    return TextSpan(
-//      children: list,
-//      style: style,
-//    );
-//  }
+
+  @override
+  TextSpan buildTextSpan({TextStyle style, bool withComposing}) {
+    var list = <InlineSpan>[];
+    if (text?.isNotEmpty ?? false) {
+      var matches = RegExp('[${RichSpan.codeTextStart}-${RichSpan.codeTextEnd}]').allMatches(text);
+      var index = 0;
+      var start = 0;
+      matches.forEach((element) {
+        if (index < element.start) {
+          list.add(TextSpan(text: text.substring(index, element.start)));
+        }
+        list.add(_textToSapne(text.substring(element.start, element.end)));
+        index = element.end;
+        start++;
+      });
+      if (index < text.length) {
+        list.add(TextSpan(text: text.substring(index, text.length)));
+      }
+    }
+    return TextSpan(
+      children: list,
+      style: style,
+    );
+  }
+
+  InlineSpan _textToSapne(String text) {
+    var child = textToRichSpan?.call(text);
+    if (null != child) {
+      return RichSpan(text, child: child);
+    }
+    return TextSpan(
+      text: text,
+    );
+  }
 }
 
 class RichEditableText extends StatefulWidget {
