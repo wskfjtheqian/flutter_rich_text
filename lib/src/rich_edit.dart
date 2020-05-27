@@ -43,7 +43,7 @@ class RichTextEditingController extends TextEditingController {
 
     var baseOffset = value.selection.baseOffset;
     var temp = value.text;
-    if (-1 != baseOffset && baseOffset < temp.length) {
+    if (0 < temp.length && baseOffset < temp.length) {
       temp = temp.substring(0, baseOffset) + codeText + temp.substring(baseOffset);
     } else {
       temp += codeText;
@@ -92,7 +92,7 @@ class RichTextEditingController extends TextEditingController {
   InlineSpan _textToSapne(String text, TextStyle style) {
     var child = textToRichSpan?.call(text);
     if (null != child) {
-      return RichSpan(text, child: child, style: style,baseline: TextBaseline.alphabetic);
+      return RichSpan(text, child: child, style: style, baseline: TextBaseline.alphabetic);
     }
     return TextSpan(
       text: text,
@@ -1053,7 +1053,7 @@ class RichEditableTextState extends State<RichEditableText>
       }
     }
     if (widget.selectionEnabled && pasteEnabled && widget.selectionControls?.canPaste(this) == true) {
-      _clipboardStatus?.update();
+//TODO      _clipboardStatus?.update();
     }
   }
 

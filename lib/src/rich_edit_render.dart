@@ -2103,28 +2103,6 @@ class RichRenderEditable extends RenderBox
 
   @override
   void _paintChild(PaintingContext context, Offset offset) {
-//    assert(() {
-//      if (debugRepaintTextRainbowEnabled) {
-//        final Paint paint = Paint()
-//          ..color = debugCurrentRepaintColor.toColor();
-//        context.canvas.drawRect(offset & size, paint);
-//      }
-//      return true;
-//    }());
-
-//    if (_needsClipping) {
-//      final Rect bounds = offset & size;
-//      if (_overflowShader != null) {
-//        // This layer limits what the shader below blends with to be just the
-//        // text (as opposed to the text and its background).
-//        context.canvas.saveLayer(bounds, Paint());
-//      } else {
-//        context.canvas.save();
-//      }
-//      context.canvas.clipRect(bounds);
-//    }
-//    _textPainter.paint(context.canvas, offset);
-
     RenderBox child = firstChild;
     int childIndex = 0;
     while (child != null && childIndex < _textPainter.inlinePlaceholderBoxes.length) {
@@ -2145,26 +2123,17 @@ class RichRenderEditable extends RenderBox
       child = childAfter(child);
       childIndex += 1;
     }
-//    if (_needsClipping) {
-//      if (_overflowShader != null) {
-//        context.canvas.translate(offset.dx, offset.dy);
-//        final Paint paint = Paint()
-//          ..blendMode = BlendMode.modulate
-//          ..shader = _overflowShader;
-//        context.canvas.drawRect(Offset.zero & size, paint);
-//      }
-//      context.canvas.restore();
-//    }
   }
 
   @override
   void paint(PaintingContext context, Offset offset) {
     _layoutTextWithConstraints(constraints);
-    _paintChild(context, offset);
     if (_hasVisualOverflow)
       context.pushClipRect(needsCompositing, offset, Offset.zero & size, _paintContents);
     else
       _paintContents(context, offset);
+
+    _paintChild(context, offset);
     _paintHandleLayers(context, getEndpointsForSelection(selection));
   }
 
