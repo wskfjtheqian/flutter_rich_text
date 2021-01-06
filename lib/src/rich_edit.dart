@@ -1867,6 +1867,11 @@ class RichEditableTextState extends State<RichEditableText>
       withComposing: !widget.readOnly,
     );
   }
+
+  @override
+  void performPrivateCommand(String action, Map<String, dynamic> data) {
+    // TODO: implement performPrivateCommand
+  }
 }
 
 // This formatter inserts [Unicode.RLM] and [Unicode.LRM] into the
