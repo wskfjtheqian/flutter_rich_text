@@ -37,7 +37,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.green,
+      backgroundColor: Colors.white.withOpacity(0.9),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -46,6 +46,21 @@ class _MyHomePageState extends State<MyHomePage> {
               padding: EdgeInsets.all(60),
               child: RichTextField(
                 controller: _controller,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.all(60),
+              child: RichText(
+                text: TextSpan(
+                  text: "甘厅在巴dsd格达",
+                  style: TextStyle(color: Colors.black45),
+                  children: [
+                    WidgetSpan(child: Image.asset("assets/emojis/emoji_002.png")),
+                    TextSpan(text: "adsfasf"),
+                  ],
+                ),
               ),
             ),
           ),

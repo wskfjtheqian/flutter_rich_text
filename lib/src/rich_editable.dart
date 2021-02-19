@@ -2702,8 +2702,8 @@ class RichEditableTextState extends State<RichEditableText>
   }
 }
 
-class _Editable extends LeafRenderObjectWidget {
-  const _Editable({
+class _Editable extends MultiChildRenderObjectWidget {
+  _Editable({
     Key? key,
     required this.textSpan,
     required this.value,
@@ -2751,7 +2751,24 @@ class _Editable extends LeafRenderObjectWidget {
     required this.clipBehavior,
   })   : assert(textDirection != null),
         assert(rendererIgnoresPointer != null),
-        super(key: key);
+        super(key: key, children: _extractChildren(textSpan));
+
+  // Traverses the InlineSpan tree and depth-first collects the list of
+  // child widgets that are created in WidgetSpans.
+  static List<Widget> _extractChildren(InlineSpan span) {
+    int index = 0;
+    final List<Widget> result = <Widget>[];
+    span.visitChildren((InlineSpan span) {
+      if (span is WidgetSpan) {
+        result.add(Semantics(
+          tagForChildren: PlaceholderSpanIndexSemanticsTag(index++),
+          child: span.child,
+        ));
+      }
+      return true;
+    });
+    return result;
+  }
 
   final TextSpan textSpan;
   final TextEditingValue value;
