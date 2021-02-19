@@ -52,9 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
           Expanded(
             child: Padding(
               padding: EdgeInsets.all(60),
-              child: TextField(
-                controller: _controller1,
-              ),
+              child: TextField(),
             ),
           ),
           RaisedButton(
@@ -69,9 +67,13 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _textToRichSpan(String text) {
-    switch(text){
+    switch (text) {
       case '\uE001':
-        return Image.asset('assets/emojis/emoji_002.png',width: 24,height: 24,);
+        return Image.asset(
+          'assets/emojis/emoji_002.png',
+          width: 24,
+          height: 24,
+        );
     }
   }
 }

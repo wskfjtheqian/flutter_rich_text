@@ -11,8 +11,8 @@ class RichSpan extends WidgetSpan {
     this.codeText, {
     child,
     ui.PlaceholderAlignment alignment = ui.PlaceholderAlignment.bottom,
-    TextBaseline baseline,
-    TextStyle style,
+    TextBaseline? baseline,
+    TextStyle? style,
   })  : assert(child != codeText),
         assert(child != null),
         assert(baseline != null ||
@@ -27,7 +27,7 @@ class RichSpan extends WidgetSpan {
         );
 
   @override
-  int codeUnitAtVisitor(int index, Accumulator offset) {
+  int? codeUnitAtVisitor(int index, Accumulator offset) {
     if (index - offset.value < codeText.length) {
       return codeText.codeUnitAt(0);
     }
