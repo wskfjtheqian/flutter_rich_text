@@ -2329,29 +2329,6 @@ class RichRenderEditable extends RenderBox with RelayoutWhenSystemFontsChangeMix
     }
   }
 
-  void _paintChild(PaintingContext context, Offset offset) {
-    RenderBox child = firstChild;
-    int childIndex = 0;
-    while (child != null && childIndex < (_textPainter.inlinePlaceholderBoxes?.length ?? 0)) {
-      final TextParentData textParentData = child.parentData as TextParentData;
-
-      final double scale = textParentData.scale ?? 1;
-      context.pushTransform(
-        needsCompositing,
-        offset + textParentData.offset,
-        Matrix4.diagonal3Values(scale, scale, scale),
-        (PaintingContext context, Offset offset) {
-          context.paintChild(
-            child,
-            offset,
-          );
-        },
-      );
-      child = childAfter(child);
-      childIndex += 1;
-    }
-  }
-
   @override
   void paint(PaintingContext context, Offset offset) {
     _layoutText(minWidth: constraints.minWidth, maxWidth: constraints.maxWidth);
@@ -2361,7 +2338,6 @@ class RichRenderEditable extends RenderBox with RelayoutWhenSystemFontsChangeMix
       _clipRectLayer = null;
       _paintContents(context, offset);
     }
-    _paintChild(context, offset);
     _paintHandleLayers(context, getEndpointsForSelection(selection!));
   }
 
