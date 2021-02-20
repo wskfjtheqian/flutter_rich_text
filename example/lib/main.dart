@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:rich_text_edit/rich_text_edit.dart';
 
@@ -50,21 +48,7 @@ class _MyHomePageState extends State<MyHomePage> {
               padding: EdgeInsets.all(60),
               child: RichTextField(
                 controller: _controller,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.all(60),
-              child: RichText(
-                text: TextSpan(
-                  text: _tt,
-                  style: TextStyle(color: Colors.black45),
-                  children: [
-                    WidgetSpan(child: Image.asset("assets/emojis/emoji_002.png")),
-                    TextSpan(text: "adsfasf"),
-                  ],
-                ),
+                maxLines: 2,
               ),
             ),
           ),
@@ -73,16 +57,13 @@ class _MyHomePageState extends State<MyHomePage> {
               padding: EdgeInsets.all(60),
               child: TextField(
                 controller: _controller1,
+                maxLines: 2,
               ),
             ),
           ),
           RaisedButton(
             onPressed: () {
-
-               _controller1.text = 'AEBBDDCCDDD';
-               _controller1.selection = TextSelection(baseOffset: 1, extentOffset: 2);
               _controller.addSpan('\uE001');
-               _controller.selection = TextSelection(baseOffset: 1, extentOffset: 2);
               // setState(() {
               //   _tt += "人";
               // });

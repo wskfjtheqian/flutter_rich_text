@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'dart:ui' as ui show ParagraphBuilder, PlaceholderAlignment;
+import 'dart:ui' as ui show PlaceholderAlignment;
 
 class RichSpan extends WidgetSpan {
   static final codeTextStart = '\uE000';

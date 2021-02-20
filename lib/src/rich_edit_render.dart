@@ -252,7 +252,7 @@ class RichRenderEditable extends RenderBox
         assert(selectionWidthStyle != null),
         assert(clipBehavior != null),
         _textPainter = TextPainter(
-          text: text,
+          text: TextSpan(text: "g"),
           textAlign: textAlign,
           textDirection: textDirection,
           textScaleFactor: textScaleFactor,
@@ -278,7 +278,8 @@ class RichRenderEditable extends RenderBox
         _obscureText = obscureText,
         _readOnly = readOnly,
         _forceLine = forceLine,
-        _clipBehavior = clipBehavior {
+        _clipBehavior = clipBehavior,
+        super() {
     assert(_showCursor != null);
     assert(!_showCursor.value || cursorColor != null);
     this.hasFocus = hasFocus ?? false;
@@ -305,6 +306,9 @@ class RichRenderEditable extends RenderBox
   /// Child render objects
   _RenderEditableCustomPaint? _foregroundRenderObject;
   _RenderEditableCustomPaint? _backgroundRenderObject;
+
+  @override
+  bool get isRepaintBoundary => true;
 
   @override
   void setupParentData(RenderBox child) {
@@ -1522,6 +1526,7 @@ class RichRenderEditable extends RenderBox
   ///
   /// Defaults to [Clip.hardEdge], and must not be null.
   Clip get clipBehavior => _clipBehavior;
+
   Clip _clipBehavior = Clip.hardEdge;
 
   set clipBehavior(Clip value) {
@@ -2386,7 +2391,7 @@ class RichRenderEditable extends RenderBox
     _placeholderDimensions = _layoutChildren(constraints);
     _layoutTextWithConstraints(constraints);
     _setParentData();
-    // _layoutText(minWidth: constraints.minWidth, maxWidth: constraints.maxWidth);
+
     _computeCaretPrototype();
 // We grab _textPainter.size here because assigning to `size` on the next
 // line will trigger us to validate our intrinsic sizes, which will change
@@ -2512,7 +2517,7 @@ class RichRenderEditable extends RenderBox
     if (backgroundChild != null) context.paintChild(backgroundChild, offset);
 
     _textPainter.paint(context.canvas, effectiveOffset);
-
+    _paintChild(context, effectiveOffset);
     if (foregroundChild != null) context.paintChild(foregroundChild, offset);
   }
 
@@ -2544,12 +2549,17 @@ class RichRenderEditable extends RenderBox
   @override
   void paint(PaintingContext context, Offset offset) {
     _layoutTextWithConstraints(constraints);
-    // _layoutText(minWidth: constraints.minWidth, maxWidth: constraints.maxWidth);
     if (_hasVisualOverflow && clipBehavior != Clip.none) {
-      _clipRectLayer = context.pushClipRect(needsCompositing, offset, Offset.zero & size, _paintContents, clipBehavior: clipBehavior, oldLayer: _clipRectLayer);
+      _clipRectLayer = context.pushClipRect(
+        needsCompositing,
+        offset,
+        Offset.zero & size,
+        _paintContents,
+        clipBehavior: clipBehavior,
+        oldLayer: _clipRectLayer,
+      );
     } else {
       _clipRectLayer = null;
-      _paintChild(context, offset);
       _paintContents(context, offset);
     }
     _paintHandleLayers(context, getEndpointsForSelection(selection!));
@@ -2562,6 +2572,7 @@ class RichRenderEditable extends RenderBox
     // if engine truncates children due to ellipsis. Sadly, we would not know
     // it until we finish layout, and RenderObject is in immutable state at
     // this point.
+
     while (child != null && childIndex < _textPainter.inlinePlaceholderBoxes!.length) {
       final TextParentData textParentData = child.parentData! as TextParentData;
 
@@ -2678,6 +2689,21 @@ class RichRenderEditable extends RenderBox
       child = childAfter(child);
       childIndex += 1;
     }
+
+    if (!kIsWeb) {
+      _textPainter.setPlaceholderDimensions(placeholderDimensions);
+      _textPainter.layout();
+      var metrics = _textPainter.computeLineMetrics();
+      for (var i = 0; i < placeholderDimensions.length; i++) {
+        placeholderDimensions[i] = PlaceholderDimensions(
+          size: placeholderDimensions[i].size,
+          alignment: placeholderDimensions[i].alignment,
+          baseline: placeholderDimensions[i].baseline,
+          baselineOffset: placeholderDimensions[i].size.height - metrics[0].descent,
+        );
+      }
+      _textPainter.markNeedsLayout();
+    }
     return placeholderDimensions;
   }
 
@@ -2686,6 +2712,7 @@ class RichRenderEditable extends RenderBox
   void _setParentData() {
     RenderBox? child = firstChild;
     int childIndex = 0;
+
     while (child != null && childIndex < _textPainter.inlinePlaceholderBoxes!.length) {
       final TextParentData textParentData = child.parentData! as TextParentData;
       textParentData.offset = Offset(
