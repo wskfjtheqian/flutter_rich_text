@@ -223,7 +223,7 @@ class RichTextEditingController extends ValueNotifier<TextEditingValue> {
 
     var baseOffset = value.selection.baseOffset;
     var temp = value.text;
-    if (0 < temp.length && baseOffset < temp.length) {
+    if (0 < temp.length && baseOffset < temp.length && -1 < baseOffset) {
       temp = temp.substring(0, baseOffset) + codeText + temp.substring(baseOffset);
     } else {
       temp += codeText;

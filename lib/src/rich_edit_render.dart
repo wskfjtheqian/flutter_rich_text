@@ -1072,6 +1072,8 @@ class RichRenderEditable extends RenderBox
           //TODO _overflowShader = null;
           _extractPlaceholderSpans(value);
           markNeedsLayout();
+          markNeedsTextLayout();
+          markNeedsSemanticsUpdate();
           break;
       }
     }
@@ -1694,10 +1696,11 @@ class RichRenderEditable extends RenderBox
 
   @override
   void visitChildren(RenderObjectVisitor visitor) {
-    final RenderObject? foregroundChild = _foregroundRenderObject;
-    final RenderObject? backgroundChild = _backgroundRenderObject;
-    if (foregroundChild != null) visitor(foregroundChild);
-    if (backgroundChild != null) visitor(backgroundChild);
+    super.visitChildren(visitor);
+    // TODO final RenderObject? foregroundChild = _foregroundRenderObject;
+    // final RenderObject? backgroundChild = _backgroundRenderObject;
+    // if (foregroundChild != null) visitor(foregroundChild);
+    // if (backgroundChild != null) visitor(backgroundChild);
   }
 
   bool get _isMultiline => maxLines != 1;
@@ -1995,7 +1998,6 @@ class RichRenderEditable extends RenderBox
     assert(constraints != null);
     assert(constraints.debugAssertIsValid());
     _layoutTextWithConstraints(constraints);
-    _layoutText(minWidth: constraints.minWidth, maxWidth: constraints.maxWidth);
     return _textPainter.computeDistanceToActualBaseline(baseline);
   }
 
@@ -2003,7 +2005,7 @@ class RichRenderEditable extends RenderBox
   bool hitTestSelf(Offset position) => true;
 
   @override
-  bool hitTestChildren(BoxHitTestResult result, { required Offset position }) {
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
     RenderBox? child = firstChild;
     int childIndex = 0;
     while (child != null && childIndex < _textPainter.inlinePlaceholderBoxes!.length) {
@@ -2013,18 +2015,18 @@ class RichRenderEditable extends RenderBox
         textParentData.offset.dy,
         0.0,
       )..scale(
-        textParentData.scale,
-        textParentData.scale,
-        textParentData.scale,
-      );
+          textParentData.scale,
+          textParentData.scale,
+          textParentData.scale,
+        );
       final bool isHit = result.addWithPaintTransform(
         transform: transform,
         position: position,
         hitTest: (BoxHitTestResult result, Offset? transformed) {
           assert(() {
             final Offset manualPosition = (position - textParentData.offset) / textParentData.scale!;
-            return (transformed!.dx - manualPosition.dx).abs() < precisionErrorTolerance
-                && (transformed.dy - manualPosition.dy).abs() < precisionErrorTolerance;
+            return (transformed!.dx - manualPosition.dx).abs() < precisionErrorTolerance &&
+                (transformed.dy - manualPosition.dy).abs() < precisionErrorTolerance;
           }());
           return child!.hitTest(result, position: transformed!);
         },
@@ -2340,6 +2342,7 @@ class RichRenderEditable extends RenderBox
       globalOffset.dy.isFinite ? (globalOffset.dy / pixelMultiple).round() * pixelMultiple - globalOffset.dy : 0,
     );
   }
+
   bool _canComputeDryLayout() {
     // Dry layout cannot be calculated without a full layout for
     // alignments that require the baseline (baseline, aboveBaseline,
@@ -2348,14 +2351,16 @@ class RichRenderEditable extends RenderBox
       switch (span.alignment) {
         case ui.PlaceholderAlignment.baseline:
         case ui.PlaceholderAlignment.aboveBaseline:
-        case ui.PlaceholderAlignment.belowBaseline: {
-          return false;
-        }
+        case ui.PlaceholderAlignment.belowBaseline:
+          {
+            return false;
+          }
         case ui.PlaceholderAlignment.top:
         case ui.PlaceholderAlignment.middle:
-        case ui.PlaceholderAlignment.bottom: {
-          continue;
-        }
+        case ui.PlaceholderAlignment.bottom:
+          {
+            continue;
+          }
       }
     }
     return true;
@@ -2544,9 +2549,37 @@ class RichRenderEditable extends RenderBox
       _clipRectLayer = context.pushClipRect(needsCompositing, offset, Offset.zero & size, _paintContents, clipBehavior: clipBehavior, oldLayer: _clipRectLayer);
     } else {
       _clipRectLayer = null;
+      _paintChild(context, offset);
       _paintContents(context, offset);
     }
     _paintHandleLayers(context, getEndpointsForSelection(selection!));
+  }
+
+  void _paintChild(PaintingContext context, Offset offset) {
+    RenderBox? child = firstChild;
+    int childIndex = 0;
+    // childIndex might be out of index of placeholder boxes. This can happen
+    // if engine truncates children due to ellipsis. Sadly, we would not know
+    // it until we finish layout, and RenderObject is in immutable state at
+    // this point.
+    while (child != null && childIndex < _textPainter.inlinePlaceholderBoxes!.length) {
+      final TextParentData textParentData = child.parentData! as TextParentData;
+
+      final double scale = textParentData.scale!;
+      context.pushTransform(
+        needsCompositing,
+        offset + textParentData.offset,
+        Matrix4.diagonal3Values(scale, scale, scale),
+        (PaintingContext context, Offset offset) {
+          context.paintChild(
+            child!,
+            offset,
+          );
+        },
+      );
+      child = childAfter(child);
+      childIndex += 1;
+    }
   }
 
   ClipRectLayer? _clipRectLayer;

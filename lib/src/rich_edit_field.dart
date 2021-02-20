@@ -10,30 +10,37 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
+import 'package:rich_text_edit/src/rich_cupertion_desktop_text_selection.dart';
+import 'package:rich_text_edit/src/rich_cupertion_text_selection.dart';
 import 'package:rich_text_edit/src/rich_edit_render.dart';
 import 'package:rich_text_edit/src/rich_editable.dart';
+import 'package:rich_text_edit/src/rich_material_desktop_text_selection.dart';
+import 'package:rich_text_edit/src/rich_material_text_selection.dart';
+import 'package:rich_text_edit/src/rich_restoration_properties.dart';
 import 'package:rich_text_edit/src/rich_text_selection.dart';
-
 
 export 'package:flutter/services.dart' show TextInputType, TextInputAction, TextCapitalization, SmartQuotesType, SmartDashesType;
 
 /// Signature for the [RichTextField.buildCounter] callback.
 typedef RichInputCounterWidgetBuilder = Widget? Function(
-    /// The build context for the TextField.
-    BuildContext context, {
-    /// The length of the string currently in the input.
-    required int currentLength,
-    /// The maximum string length that can be entered into the TextField.
-    required int? maxLength,
-    /// Whether or not the TextField is currently focused.  Mainly provided for
-    /// the [liveRegion] parameter in the [Semantics] widget for accessibility.
-    required bool isFocused,
-    });
+  /// The build context for the TextField.
+  BuildContext context, {
+
+  /// The length of the string currently in the input.
+  required int currentLength,
+
+  /// The maximum string length that can be entered into the TextField.
+  required int? maxLength,
+
+  /// Whether or not the TextField is currently focused.  Mainly provided for
+  /// the [liveRegion] parameter in the [Semantics] widget for accessibility.
+  required bool isFocused,
+});
 
 class _RichTextFieldSelectionGestureDetectorBuilder extends RichTextSelectionGestureDetectorBuilder {
   _RichTextFieldSelectionGestureDetectorBuilder({
     required _RichTextFieldState state,
-  }) : _state = state,
+  })   : _state = state,
         super(delegate: state);
 
   final _RichTextFieldState _state;
@@ -87,13 +94,13 @@ class _RichTextFieldSelectionGestureDetectorBuilder extends RichTextSelectionGes
             case PointerDeviceKind.mouse:
             case PointerDeviceKind.stylus:
             case PointerDeviceKind.invertedStylus:
-            // Precise devices should place the cursor at a precise position.
+              // Precise devices should place the cursor at a precise position.
               renderEditable.selectPosition(cause: RichSelectionChangedCause.tap);
               break;
             case PointerDeviceKind.touch:
             case PointerDeviceKind.unknown:
-            // On macOS/iOS/iPadOS a touch tap places the cursor at the edge
-            // of the word.
+              // On macOS/iOS/iPadOS a touch tap places the cursor at the edge
+              // of the word.
               renderEditable.selectWordEdge(cause: RichSelectionChangedCause.tap);
               break;
           }
@@ -107,8 +114,7 @@ class _RichTextFieldSelectionGestureDetectorBuilder extends RichTextSelectionGes
       }
     }
     _state._requestKeyboard();
-    if (_state.widget.onTap != null)
-      _state.widget.onTap!();
+    if (_state.widget.onTap != null) _state.widget.onTap!();
   }
 
   @override
@@ -348,12 +354,10 @@ class RichTextField extends StatefulWidget {
     this.minLines,
     this.expands = false,
     this.maxLength,
-    @Deprecated(
-        'Use maxLengthEnforcement parameter which provides more specific '
-            'behavior related to the maxLength limit. '
-            'This feature was deprecated after v1.25.0-5.0.pre.'
-    )
-    this.maxLengthEnforced = true,
+    @Deprecated('Use maxLengthEnforcement parameter which provides more specific '
+        'behavior related to the maxLength limit. '
+        'This feature was deprecated after v1.25.0-5.0.pre.')
+        this.maxLengthEnforced = true,
     this.maxLengthEnforcement,
     this.onChanged,
     this.onEditingComplete,
@@ -379,7 +383,7 @@ class RichTextField extends StatefulWidget {
     this.scrollPhysics,
     this.autofillHints,
     this.restorationId,
-  }) : assert(textAlign != null),
+  })  : assert(textAlign != null),
         assert(readOnly != null),
         assert(autofocus != null),
         assert(obscuringCharacter != null && obscuringCharacter.length == 1),
@@ -391,8 +395,8 @@ class RichTextField extends StatefulWidget {
         assert(enableInteractiveSelection != null),
         assert(maxLengthEnforced != null),
         assert(
-        maxLengthEnforced || maxLengthEnforcement == null,
-        'maxLengthEnforced is deprecated, use only maxLengthEnforcement',
+          maxLengthEnforced || maxLengthEnforcement == null,
+          'maxLengthEnforced is deprecated, use only maxLengthEnforcement',
         ),
         assert(scrollPadding != null),
         assert(dragStartBehavior != null),
@@ -401,33 +405,32 @@ class RichTextField extends StatefulWidget {
         assert(maxLines == null || maxLines > 0),
         assert(minLines == null || minLines > 0),
         assert(
-        (maxLines == null) || (minLines == null) || (maxLines >= minLines),
-        "minLines can't be greater than maxLines",
+          (maxLines == null) || (minLines == null) || (maxLines >= minLines),
+          "minLines can't be greater than maxLines",
         ),
         assert(expands != null),
         assert(
-        !expands || (maxLines == null && minLines == null),
-        'minLines and maxLines must be null when expands is true.',
+          !expands || (maxLines == null && minLines == null),
+          'minLines and maxLines must be null when expands is true.',
         ),
         assert(!obscureText || maxLines == 1, 'Obscured fields cannot be multiline.'),
         assert(maxLength == null || maxLength == RichTextField.noMaxLength || maxLength > 0),
-  // Assert the following instead of setting it directly to avoid surprising the user by silently changing the value they set.
-        assert(!identical(textInputAction, TextInputAction.newline) ||
-            maxLines == 1 ||
-            !identical(keyboardType, TextInputType.text),
-        'Use keyboardType TextInputType.multiline when using TextInputAction.newline on a multiline TextField.'),
+        // Assert the following instead of setting it directly to avoid surprising the user by silently changing the value they set.
+        assert(!identical(textInputAction, TextInputAction.newline) || maxLines == 1 || !identical(keyboardType, TextInputType.text),
+            'Use keyboardType TextInputType.multiline when using TextInputAction.newline on a multiline TextField.'),
         keyboardType = keyboardType ?? (maxLines == 1 ? TextInputType.text : TextInputType.multiline),
-        toolbarOptions = toolbarOptions ?? (obscureText ?
-        const RichToolbarOptions(
-          selectAll: true,
-          paste: true,
-        ) :
-        const RichToolbarOptions(
-          copy: true,
-          cut: true,
-          selectAll: true,
-          paste: true,
-        )),
+        toolbarOptions = toolbarOptions ??
+            (obscureText
+                ? const RichToolbarOptions(
+                    selectAll: true,
+                    paste: true,
+                  )
+                : const RichToolbarOptions(
+                    copy: true,
+                    cut: true,
+                    selectAll: true,
+                    paste: true,
+                  )),
         super(key: key);
 
   /// Controls the text being edited.
@@ -600,11 +603,9 @@ class RichTextField extends StatefulWidget {
   ///
   /// If true, prevents the field from allowing more than [maxLength]
   /// characters.
-  @Deprecated(
-      'Use maxLengthEnforcement parameter which provides more specific '
-          'behavior related to the maxLength limit. '
-          'This feature was deprecated after v1.25.0-5.0.pre.'
-  )
+  @Deprecated('Use maxLengthEnforcement parameter which provides more specific '
+      'behavior related to the maxLength limit. '
+      'This feature was deprecated after v1.25.0-5.0.pre.')
   final bool maxLengthEnforced;
 
   /// Determines how the [maxLength] limit should be enforced.
@@ -820,8 +821,10 @@ class RichTextField extends StatefulWidget {
     properties.add(DiagnosticsProperty<String>('obscuringCharacter', obscuringCharacter, defaultValue: '•'));
     properties.add(DiagnosticsProperty<bool>('obscureText', obscureText, defaultValue: false));
     properties.add(DiagnosticsProperty<bool>('autocorrect', autocorrect, defaultValue: true));
-    properties.add(EnumProperty<SmartDashesType>('smartDashesType', smartDashesType, defaultValue: obscureText ? SmartDashesType.disabled : SmartDashesType.enabled));
-    properties.add(EnumProperty<SmartQuotesType>('smartQuotesType', smartQuotesType, defaultValue: obscureText ? SmartQuotesType.disabled : SmartQuotesType.enabled));
+    properties
+        .add(EnumProperty<SmartDashesType>('smartDashesType', smartDashesType, defaultValue: obscureText ? SmartDashesType.disabled : SmartDashesType.enabled));
+    properties
+        .add(EnumProperty<SmartQuotesType>('smartQuotesType', smartQuotesType, defaultValue: obscureText ? SmartQuotesType.disabled : SmartQuotesType.enabled));
     properties.add(DiagnosticsProperty<bool>('enableSuggestions', enableSuggestions, defaultValue: true));
     properties.add(IntProperty('maxLines', maxLines, defaultValue: 1));
     properties.add(IntProperty('minLines', minLines, defaultValue: null));
@@ -848,20 +851,20 @@ class RichTextField extends StatefulWidget {
 }
 
 class _RichTextFieldState extends State<RichTextField> with RestorationMixin implements RichTextSelectionGestureDetectorBuilderDelegate {
-  RestorableTextEditingController? _controller;
-  RichTextEditingController get _effectiveController => widget.controller??RichTextEditingController() /* TODO _controller!.values*/;
+  RichRestorableTextEditingController? _controller;
+
+  RichTextEditingController get _effectiveController => widget.controller ?? _controller!.value;
 
   FocusNode? _focusNode;
+
   FocusNode get _effectiveFocusNode => widget.focusNode ?? (_focusNode ??= FocusNode());
 
-  MaxLengthEnforcement get _effectiveMaxLengthEnforcement => widget.maxLengthEnforcement
-      ?? LengthLimitingTextInputFormatter.getDefaultMaxLengthEnforcement(Theme.of(context).platform);
+  MaxLengthEnforcement get _effectiveMaxLengthEnforcement =>
+      widget.maxLengthEnforcement ?? LengthLimitingTextInputFormatter.getDefaultMaxLengthEnforcement(Theme.of(context).platform);
 
   bool _isHovering = false;
 
-  bool get needsCounter => widget.maxLength != null
-      && widget.decoration != null
-      && widget.decoration!.counterText == null;
+  bool get needsCounter => widget.maxLength != null && widget.decoration != null && widget.decoration!.counterText == null;
 
   bool _showSelectionHandles = false;
 
@@ -876,9 +879,10 @@ class _RichTextFieldState extends State<RichTextField> with RestorationMixin imp
 
   @override
   bool get selectionEnabled => widget.selectionEnabled;
+
   // End of API for TextSelectionGestureDetectorBuilderDelegate.
 
-  bool get _isEnabled =>  widget.enabled ?? widget.decoration?.enabled ?? true;
+  bool get _isEnabled => widget.enabled ?? widget.decoration?.enabled ?? true;
 
   int get _currentLength => _effectiveController.value.text.characters.length;
 
@@ -889,23 +893,18 @@ class _RichTextFieldState extends State<RichTextField> with RestorationMixin imp
   InputDecoration _getEffectiveDecoration() {
     final MaterialLocalizations localizations = MaterialLocalizations.of(context);
     final ThemeData themeData = Theme.of(context);
-    final InputDecoration effectiveDecoration = (widget.decoration ?? const InputDecoration())
-        .applyDefaults(themeData.inputDecorationTheme)
-        .copyWith(
-      enabled: _isEnabled,
-      hintMaxLines: widget.decoration?.hintMaxLines ?? widget.maxLines,
-    );
+    final InputDecoration effectiveDecoration = (widget.decoration ?? const InputDecoration()).applyDefaults(themeData.inputDecorationTheme).copyWith(
+          enabled: _isEnabled,
+          hintMaxLines: widget.decoration?.hintMaxLines ?? widget.maxLines,
+        );
 
     // No need to build anything if counter or counterText were given directly.
-    if (effectiveDecoration.counter != null || effectiveDecoration.counterText != null)
-      return effectiveDecoration;
+    if (effectiveDecoration.counter != null || effectiveDecoration.counterText != null) return effectiveDecoration;
 
     // If buildCounter was provided, use it to generate a counter widget.
     Widget? counter;
     final int currentLength = _currentLength;
-    if (effectiveDecoration.counter == null
-        && effectiveDecoration.counterText == null
-        && widget.buildCounter != null) {
+    if (effectiveDecoration.counter == null && effectiveDecoration.counterText == null && widget.buildCounter != null) {
       final bool isFocused = _effectiveFocusNode.hasFocus;
       final Widget? builtCounter = widget.buildCounter!(
         context,
@@ -924,8 +923,7 @@ class _RichTextFieldState extends State<RichTextField> with RestorationMixin imp
       return effectiveDecoration.copyWith(counter: counter);
     }
 
-    if (widget.maxLength == null)
-      return effectiveDecoration; // No counter widget
+    if (widget.maxLength == null) return effectiveDecoration; // No counter widget
 
     String counterText = '$currentLength';
     String semanticCounterText = '';
@@ -941,8 +939,7 @@ class _RichTextFieldState extends State<RichTextField> with RestorationMixin imp
     if (_hasIntrinsicError) {
       return effectiveDecoration.copyWith(
         errorText: effectiveDecoration.errorText ?? '',
-        counterStyle: effectiveDecoration.errorStyle
-            ?? themeData.textTheme.caption!.copyWith(color: themeData.errorColor),
+        counterStyle: effectiveDecoration.errorStyle ?? themeData.textTheme.caption!.copyWith(color: themeData.errorColor),
         counterText: counterText,
         semanticCounterText: semanticCounterText,
       );
@@ -992,7 +989,7 @@ class _RichTextFieldState extends State<RichTextField> with RestorationMixin imp
     }
     _effectiveFocusNode.canRequestFocus = _canRequestFocus;
     if (_effectiveFocusNode.hasFocus && widget.readOnly != oldWidget.readOnly && _isEnabled) {
-      if(_effectiveController.selection.isCollapsed) {
+      if (_effectiveController.selection.isCollapsed) {
         _showSelectionHandles = !widget.readOnly;
       }
     }
@@ -1012,9 +1009,7 @@ class _RichTextFieldState extends State<RichTextField> with RestorationMixin imp
 
   void _createLocalController([TextEditingValue? value]) {
     assert(_controller == null);
-    _controller = value == null
-        ? RestorableTextEditingController()
-        : RestorableTextEditingController.fromValue(value);
+    _controller = value == null ? RichRestorableTextEditingController() : RichRestorableTextEditingController.fromValue(value);
     if (!restorePending) {
       _registerController();
     }
@@ -1039,23 +1034,17 @@ class _RichTextFieldState extends State<RichTextField> with RestorationMixin imp
   bool _shouldShowSelectionHandles(RichSelectionChangedCause? cause) {
     // When the text field is activated by something that doesn't trigger the
     // selection overlay, we shouldn't show the handles either.
-    if (!_selectionGestureDetectorBuilder.shouldShowSelectionToolbar)
-      return false;
+    if (!_selectionGestureDetectorBuilder.shouldShowSelectionToolbar) return false;
 
-    if (cause == RichSelectionChangedCause.keyboard)
-      return false;
+    if (cause == RichSelectionChangedCause.keyboard) return false;
 
-    if (widget.readOnly && _effectiveController.selection.isCollapsed)
-      return false;
+    if (widget.readOnly && _effectiveController.selection.isCollapsed) return false;
 
-    if (!_isEnabled)
-      return false;
+    if (!_isEnabled) return false;
 
-    if (cause == RichSelectionChangedCause.longPress)
-      return true;
+    if (cause == RichSelectionChangedCause.longPress) return true;
 
-    if (_effectiveController.text.isNotEmpty)
-      return true;
+    if (_effectiveController.text.isNotEmpty) return true;
 
     return false;
   }
@@ -1104,9 +1093,8 @@ class _RichTextFieldState extends State<RichTextField> with RestorationMixin imp
     assert(debugCheckHasMaterialLocalizations(context));
     assert(debugCheckHasDirectionality(context));
     assert(
-    !(widget.style != null && widget.style!.inherit == false &&
-        (widget.style!.fontSize == null || widget.style!.textBaseline == null)),
-    'inherit false style must supply fontSize and textBaseline',
+      !(widget.style != null && widget.style!.inherit == false && (widget.style!.fontSize == null || widget.style!.textBaseline == null)),
+      'inherit false style must supply fontSize and textBaseline',
     );
 
     final ThemeData theme = Theme.of(context);
@@ -1137,7 +1125,7 @@ class _RichTextFieldState extends State<RichTextField> with RestorationMixin imp
       case TargetPlatform.iOS:
         final CupertinoThemeData cupertinoTheme = CupertinoTheme.of(context);
         forcePressEnabled = true;
-        // TODO textSelectionControls ??= cupertinoTextSelectionControls ;
+        textSelectionControls ??= richCupertinoTextSelectionControls;
         paintCursorAboveText = true;
         cursorOpacityAnimates = true;
         cursorColor ??= selectionTheme.cursorColor ?? cupertinoTheme.primaryColor;
@@ -1150,7 +1138,7 @@ class _RichTextFieldState extends State<RichTextField> with RestorationMixin imp
       case TargetPlatform.macOS:
         final CupertinoThemeData cupertinoTheme = CupertinoTheme.of(context);
         forcePressEnabled = false;
-        // TODO textSelectionControls ??= cupertinoDesktopTextSelectionControls;
+        textSelectionControls ??= richCupertinoDesktopTextSelectionControls;
         paintCursorAboveText = true;
         cursorOpacityAnimates = true;
         cursorColor ??= selectionTheme.cursorColor ?? cupertinoTheme.primaryColor;
@@ -1162,7 +1150,7 @@ class _RichTextFieldState extends State<RichTextField> with RestorationMixin imp
       case TargetPlatform.android:
       case TargetPlatform.fuchsia:
         forcePressEnabled = false;
-        // TODO  textSelectionControls ??= materialTextSelectionControls;
+        textSelectionControls ??= richMaterialTextSelectionControls;
         paintCursorAboveText = false;
         cursorOpacityAnimates = false;
         cursorColor ??= selectionTheme.cursorColor ?? theme.colorScheme.primary;
@@ -1172,7 +1160,7 @@ class _RichTextFieldState extends State<RichTextField> with RestorationMixin imp
       case TargetPlatform.linux:
       case TargetPlatform.windows:
         forcePressEnabled = false;
-        // TODO  textSelectionControls ??= desktopTextSelectionControls;
+        textSelectionControls ??= richMaterialDesktopTextSelectionControls;
         paintCursorAboveText = false;
         cursorOpacityAnimates = false;
         cursorColor ??= selectionTheme.cursorColor ?? theme.colorScheme.primary;
@@ -1218,7 +1206,8 @@ class _RichTextFieldState extends State<RichTextField> with RestorationMixin imp
           onSelectionHandleTapped: _handleSelectionHandleTapped,
           inputFormatters: formatters,
           rendererIgnoresPointer: true,
-          mouseCursor: MouseCursor.defer, // TextField will handle the cursor
+          mouseCursor: MouseCursor.defer,
+          // TextField will handle the cursor
           cursorWidth: widget.cursorWidth,
           cursorHeight: widget.cursorHeight,
           cursorRadius: cursorRadius,
@@ -1244,7 +1233,7 @@ class _RichTextFieldState extends State<RichTextField> with RestorationMixin imp
 
     if (widget.decoration != null) {
       child = AnimatedBuilder(
-        animation: Listenable.merge(<Listenable>[ focusNode, controller ]),
+        animation: Listenable.merge(<Listenable>[focusNode, controller]),
         builder: (BuildContext context, Widget? child) {
           return InputDecorator(
             decoration: _getEffectiveDecoration(),
@@ -1272,10 +1261,7 @@ class _RichTextFieldState extends State<RichTextField> with RestorationMixin imp
     );
 
     final int? semanticsMaxValueLength;
-    if (widget.maxLengthEnforced &&
-        _effectiveMaxLengthEnforcement != MaxLengthEnforcement.none &&
-        widget.maxLength != null &&
-        widget.maxLength! > 0) {
+    if (widget.maxLengthEnforced && _effectiveMaxLengthEnforcement != MaxLengthEnforcement.none && widget.maxLength != null && widget.maxLength! > 0) {
       semanticsMaxValueLength = widget.maxLength;
     } else {
       semanticsMaxValueLength = null;
@@ -1293,11 +1279,13 @@ class _RichTextFieldState extends State<RichTextField> with RestorationMixin imp
             return Semantics(
               maxValueLength: semanticsMaxValueLength,
               currentValueLength: _currentLength,
-              onTap: widget.readOnly ? null : () {
-                if (!_effectiveController.selection.isValid)
-                  _effectiveController.selection = TextSelection.collapsed(offset: _effectiveController.text.length);
-                _requestKeyboard();
-              },
+              onTap: widget.readOnly
+                  ? null
+                  : () {
+                      if (!_effectiveController.selection.isValid)
+                        _effectiveController.selection = TextSelection.collapsed(offset: _effectiveController.text.length);
+                      _requestKeyboard();
+                    },
               child: child,
             );
           },
