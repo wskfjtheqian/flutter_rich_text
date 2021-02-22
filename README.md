@@ -4,4 +4,4 @@ A new Flutter package project.
 
 ## Getting Started
 
-Flutter Sdk <= 1.25.0
+Flutter Sdk > 1.25.0

@@ -252,7 +252,7 @@ class RichRenderEditable extends RenderBox
         assert(selectionWidthStyle != null),
         assert(clipBehavior != null),
         _textPainter = TextPainter(
-          text: TextSpan(text: "g"),
+          text: text,
           textAlign: textAlign,
           textDirection: textDirection,
           textScaleFactor: textScaleFactor,
