@@ -2527,8 +2527,13 @@ class RichEditableTextState extends State<RichEditableText>
   }
 
   @override
-  void hideToolbar() {
-    _selectionOverlay?.hide();
+  void hideToolbar([bool hideHandles = true]) {
+    if (hideHandles) {
+      _selectionOverlay?.hide();
+    } else {
+      // Hide only the toolbar but not the handles.
+      _selectionOverlay?.hideToolbar();
+    }
   }
 
   /// Toggles the visibility of the toolbar.
@@ -2699,6 +2704,11 @@ class RichEditableTextState extends State<RichEditableText>
       style: widget.style,
       withComposing: !widget.readOnly,
     );
+  }
+
+  @override
+  void userUpdateTextEditingValue(TextEditingValue value, SelectionChangedCause cause) {
+
   }
 }
 

@@ -1299,7 +1299,7 @@ class _RichTextFieldState extends State<RichTextField> with RestorationMixin imp
 
     if (kIsWeb) {
       return Shortcuts(
-        shortcuts: scrollShortcutOverrides,
+        shortcuts: richScrollShortcutOverrides,
         child: child,
       );
     }
