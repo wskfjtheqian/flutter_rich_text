@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:rich_text_edit/rich_text_edit.dart';
-
 void main() {
   runApp(MyApp());
 }

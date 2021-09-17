@@ -1550,10 +1550,10 @@ class _TransparentTapGestureRecognizer extends TapGestureRecognizer {
 /// The contents of the clipboard can only be read asynchronously, via
 /// [Clipboard.getData], so this maintains a value that can be used
 /// synchronously. Call [update] to asynchronously update value if needed.
-class RichClipboardStatusNotifier extends ValueNotifier<RichClipboardStatus> with WidgetsBindingObserver {
-  /// Create a new ClipboardStatusNotifier.
+class RichClipboardStatusNotifier extends ValueNotifier<ClipboardStatus> with WidgetsBindingObserver {
+  /// Create a new Rich.
   RichClipboardStatusNotifier({
-    RichClipboardStatus value = RichClipboardStatus.unknown,
+    ClipboardStatus value = ClipboardStatus.unknown,
   }) : super(value);
 
   bool _disposed = false;
@@ -1572,7 +1572,7 @@ class RichClipboardStatusNotifier extends ValueNotifier<RichClipboardStatus> wit
     // https://github.com/flutter/flutter/issues/60145
     switch (defaultTargetPlatform) {
       case TargetPlatform.iOS:
-        value = RichClipboardStatus.pasteable;
+        value = ClipboardStatus.pasteable;
         return;
       case TargetPlatform.android:
       case TargetPlatform.fuchsia:
@@ -1588,15 +1588,15 @@ class RichClipboardStatusNotifier extends ValueNotifier<RichClipboardStatus> wit
     } catch (stacktrace) {
       // In the case of an error from the Clipboard API, set the value to
       // unknown so that it will try to update again later.
-      if (_disposed || value == RichClipboardStatus.unknown) {
+      if (_disposed || value == ClipboardStatus.unknown) {
         return;
       }
-      value = RichClipboardStatus.unknown;
+      value = ClipboardStatus.unknown;
       return;
     }
 
-    final RichClipboardStatus clipboardStatus =
-        data != null && data.text != null && data.text!.isNotEmpty ? RichClipboardStatus.pasteable : RichClipboardStatus.notPasteable;
+    final ClipboardStatus clipboardStatus =
+        data != null && data.text != null && data.text!.isNotEmpty ? ClipboardStatus.pasteable : ClipboardStatus.notPasteable;
     if (_disposed || clipboardStatus == value) {
       return;
     }
@@ -1608,7 +1608,7 @@ class RichClipboardStatusNotifier extends ValueNotifier<RichClipboardStatus> wit
     if (!hasListeners) {
       WidgetsBinding.instance!.addObserver(this);
     }
-    if (value == RichClipboardStatus.unknown) {
+    if (value == ClipboardStatus.unknown) {
       update();
     }
     super.addListener(listener);
@@ -1641,18 +1641,4 @@ class RichClipboardStatusNotifier extends ValueNotifier<RichClipboardStatus> wit
     WidgetsBinding.instance!.removeObserver(this);
     _disposed = true;
   }
-}
-
-/// An enumeration of the status of the content on the user's clipboard.
-enum RichClipboardStatus {
-  /// The clipboard content can be pasted, such as a String of nonzero length.
-  pasteable,
-
-  /// The status of the clipboard is unknown. Since getting clipboard data is
-  /// asynchronous (see [Clipboard.getData]), this status often exists while
-  /// waiting to receive the clipboard contents for the first time.
-  unknown,
-
-  /// The content on the clipboard is not pasteable, such as when it is empty.
-  notPasteable,
 }
