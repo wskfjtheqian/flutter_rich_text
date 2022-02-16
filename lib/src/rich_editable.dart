@@ -49,7 +49,7 @@ final Map<LogicalKeySet, Intent> richScrollShortcutOverrides = <LogicalKeySet, I
   LogicalKeySet(LogicalKeyboardKey.arrowRight): DoNothingAndStopPropagationIntent(),
 };
 
-typedef TextToRichSpan = Widget Function(String text);
+typedef TextToRichSpan = Widget? Function(String text);
 
 /// A controller for an editable text field.
 ///
