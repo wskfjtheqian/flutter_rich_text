@@ -2562,13 +2562,13 @@ class RichEditableTextState extends State<RichEditableText>
       inputAction: widget.textInputAction ?? (widget.keyboardType == TextInputType.multiline ? TextInputAction.newline : TextInputAction.done),
       textCapitalization: widget.textCapitalization,
       keyboardAppearance: widget.keyboardAppearance,
-      autofillConfiguration: !needsAutofillConfiguration
-          ? null
-          : AutofillConfiguration(
-              uniqueIdentifier: autofillId,
-              autofillHints: widget.autofillHints?.toList(growable: false) ?? <String>[],
-              currentEditingValue: currentTextEditingValue,
-            ),
+      //TODO测试  autofillConfiguration: !needsAutofillConfiguration
+      //     ? null
+      //     : AutofillConfiguration(
+      //         uniqueIdentifier: autofillId,
+      //         autofillHints: widget.autofillHints?.toList(growable: false) ?? <String>[],
+      //         currentEditingValue: currentTextEditingValue,
+      //       ),
     );
   }
 
@@ -2707,8 +2707,42 @@ class RichEditableTextState extends State<RichEditableText>
   }
 
   @override
-  void userUpdateTextEditingValue(TextEditingValue value, SelectionChangedCause cause) {
+  void userUpdateTextEditingValue(TextEditingValue value, SelectionChangedCause cause) {}
 
+  @override
+  void autofill(TextEditingValue newEditingValue) {
+    // TODO: implement autofill
+  }
+
+  @override
+  void copySelection(SelectionChangedCause cause) {
+    // TODO: implement copySelection
+  }
+
+  @override
+  void cutSelection(SelectionChangedCause cause) {
+    // TODO: implement cutSelection
+  }
+
+  @override
+  void insertTextPlaceholder(Size size) {
+    // TODO: implement insertTextPlaceholder
+  }
+
+  @override
+  Future<void> pasteText(SelectionChangedCause cause) {
+    // TODO: implement pasteText
+    throw UnimplementedError();
+  }
+
+  @override
+  void removeTextPlaceholder() {
+    // TODO: implement removeTextPlaceholder
+  }
+
+  @override
+  void selectAll(SelectionChangedCause cause) {
+    // TODO: implement selectAll
   }
 }
 
@@ -2759,7 +2793,7 @@ class _Editable extends MultiChildRenderObjectWidget {
     this.promptRectRange,
     this.promptRectColor,
     required this.clipBehavior,
-  })   : assert(textDirection != null),
+  })  : assert(textDirection != null),
         assert(rendererIgnoresPointer != null),
         super(key: key, children: _extractChildren(textSpan));
 

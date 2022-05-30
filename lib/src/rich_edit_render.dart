@@ -927,7 +927,7 @@ class RichRenderEditable extends RenderBox
       RichSelectionChangedCause.keyboard,
     );
 // Update the text selection delegate so that the engine knows what we did.
-    textSelectionDelegate.textEditingValue = textSelectionDelegate.textEditingValue.copyWith(selection: newSelection);
+//TODO测试      textSelectionDelegate.textEditingValue = textSelectionDelegate.textEditingValue.copyWith(selection: newSelection);
   }
 
 // Handles shortcut functionality including cut, copy, paste and select all
@@ -980,7 +980,7 @@ class RichRenderEditable extends RenderBox
           RichSelectionChangedCause.keyboard,
         );
       }
-      textSelectionDelegate.textEditingValue = value;
+      //TODO测试  textSelectionDelegate.textEditingValue = value;
     }
   }
 
@@ -1013,10 +1013,10 @@ class RichRenderEditable extends RenderBox
         RichSelectionChangedCause.keyboard,
       );
     }
-    textSelectionDelegate.textEditingValue = TextEditingValue(
-      text: textBefore + textAfter,
-      selection: newSelection,
-    );
+    //TODO测试  textSelectionDelegate.textEditingValue = TextEditingValue(
+    //   text: textBefore + textAfter,
+    //   selection: newSelection,
+    // );
   }
 
   @override

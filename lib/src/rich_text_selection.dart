@@ -197,10 +197,11 @@ abstract class RichTextSelectionControls {
     Clipboard.setData(ClipboardData(
       text: value.selection.textInside(value.text),
     ));
-    delegate.textEditingValue = TextEditingValue(
-      text: value.selection.textBefore(value.text) + value.selection.textAfter(value.text),
-      selection: TextSelection.collapsed(offset: value.selection.start),
-    );
+
+    //TODO测试 delegate.textEditingValue = TextEditingValue(
+    //   text: value.selection.textBefore(value.text) + value.selection.textAfter(value.text),
+    //   selection: TextSelection.collapsed(offset: value.selection.start),
+    // );
     delegate.bringIntoView(delegate.textEditingValue.selection.extent);
     delegate.hideToolbar();
   }
@@ -217,10 +218,10 @@ abstract class RichTextSelectionControls {
       text: value.selection.textInside(value.text),
     ));
     clipboardStatus?.update();
-    delegate.textEditingValue = TextEditingValue(
-      text: value.text,
-      selection: TextSelection.collapsed(offset: value.selection.end),
-    );
+    //TODO测试  delegate.textEditingValue = TextEditingValue(
+    //   text: value.text,
+    //   selection: TextSelection.collapsed(offset: value.selection.end),
+    // );
     delegate.bringIntoView(delegate.textEditingValue.selection.extent);
     delegate.hideToolbar();
   }
@@ -240,10 +241,10 @@ abstract class RichTextSelectionControls {
     final TextEditingValue value = delegate.textEditingValue; // Snapshot the input before using `await`.
     final ClipboardData? data = await Clipboard.getData(Clipboard.kTextPlain);
     if (data != null) {
-      delegate.textEditingValue = TextEditingValue(
-        text: value.selection.textBefore(value.text) + data.text! + value.selection.textAfter(value.text),
-        selection: TextSelection.collapsed(offset: value.selection.start + data.text!.length),
-      );
+      //TODO测试  delegate.textEditingValue = TextEditingValue(
+      //   text: value.selection.textBefore(value.text) + data.text! + value.selection.textAfter(value.text),
+      //   selection: TextSelection.collapsed(offset: value.selection.start + data.text!.length),
+      // );
     }
     delegate.bringIntoView(delegate.textEditingValue.selection.extent);
     delegate.hideToolbar();
@@ -257,13 +258,13 @@ abstract class RichTextSelectionControls {
   /// This is called by subclasses when their select-all affordance is activated
   /// by the user.
   void handleSelectAll(TextSelectionDelegate delegate) {
-    delegate.textEditingValue = TextEditingValue(
-      text: delegate.textEditingValue.text,
-      selection: TextSelection(
-        baseOffset: 0,
-        extentOffset: delegate.textEditingValue.text.length,
-      ),
-    );
+    //TODO测试  delegate.textEditingValue = TextEditingValue(
+    //   text: delegate.textEditingValue.text,
+    //   selection: TextSelection(
+    //     baseOffset: 0,
+    //     extentOffset: delegate.textEditingValue.text.length,
+    //   ),
+    // );
     delegate.bringIntoView(delegate.textEditingValue.selection.extent);
   }
 }
@@ -598,7 +599,7 @@ class RichTextSelectionOverlay {
         textPosition = newSelection.extent;
         break;
     }
-    selectionDelegate!.textEditingValue = _value.copyWith(selection: newSelection, composing: TextRange.empty);
+    //TODO测试  selectionDelegate!.textEditingValue = _value.copyWith(selection: newSelection, composing: TextRange.empty);
     selectionDelegate!.bringIntoView(textPosition);
   }
 }
